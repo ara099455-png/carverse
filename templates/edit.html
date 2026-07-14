@@ -1,0 +1,263 @@
+{% extends "base.html" %}
+{% block title %}Customize {{ car.full_name }} — CarVerse{% endblock %}
+{% block content %}
+
+<style>
+  .edit-page { max-width: 1100px; margin: 0 auto; padding: 100px 20px 60px; }
+  .edit-head h1 { color: #eee; letter-spacing: 2px; font-size: 1.5rem; }
+  .edit-head p { color: #888; margin: 6px 0 20px; }
+
+  .edit-tabs { display: flex; gap: 8px; margin-bottom: 22px; flex-wrap: wrap; }
+  .etab { background: #1a1a1a; border: 1px solid #333; color: #999; padding: 12px 22px;
+    border-radius: 8px; cursor: pointer; font-family: "Orbitron", sans-serif; font-size: .8rem; letter-spacing: 1px; }
+  .etab.active { background: linear-gradient(135deg,#c5c9c7,#8c8c8c); color: #0a0a0a; border-color: transparent; font-weight: 700; }
+  .epanel { display: none; }
+  .epanel.active { display: block; }
+
+  .pick-search { width: 100%; background: #1a1a1a; border: 1px solid #333; border-radius: 8px;
+    padding: 12px 14px; color: #eee; margin-bottom: 15px; }
+
+  .pick-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; }
+  .pick-card { background: #121212; border: 2px solid #232323; border-radius: 12px;
+    padding: 16px; cursor: pointer; transition: all .2s; }
+  .pick-card:hover { border-color: #555; }
+  .pick-card.selected { border-color: #c5c9c7; box-shadow: 0 0 18px rgba(197,201,199,.2); }
+  .pick-card h4 { color: #eee; margin-bottom: 6px; font-family: "Inter", sans-serif; }
+  .pick-card small { color: #888; display: block; line-height: 1.5; }
+
+  .color-card { display: flex; align-items: center; gap: 12px; }
+  .color-dot { width: 42px; height: 42px; border-radius: 50%; border: 2px solid #333; flex-shrink: 0; }
+
+  .action-bar {display: flex; gap: 10px; flex-wrap: wrap;
+    background: rgba(10,10,10,.95); border: 1px solid #2a2a2a; border-radius: 12px;
+    padding: 14px; margin-top: 25px; }
+  .sel-summary { color: #888; font-size: .85rem; flex-basis: 100%; }
+  .sel-summary b { color: #c5c9c7; }
+
+  .report { background: #111; border: 1px solid #2a2a2a; border-radius: 14px; padding: 22px; margin-top: 25px; display: none; }
+  .report.show { display: block; }
+  .report h2 { color: #c5c9c7; letter-spacing: 2px; margin-bottom: 18px; font-size: 1.2rem; }
+  .r-row { margin-bottom: 16px; }
+  .r-row .r-lbl { color: #999; font-size: .85rem; display: flex; justify-content: space-between; margin-bottom: 5px; }
+  .r-row .r-lbl b { color: #eee; }
+  .bar-bg { background: #1e1e1e; border-radius: 6px; height: 14px; overflow: hidden; margin-bottom: 4px; }
+  .bar { height: 100%; border-radius: 6px; transition: width .8s ease; }
+  .bar.old { background: #555; }
+  .bar.new { background: linear-gradient(90deg,#c5c9c7,#8c8c8c); }
+  .legend { color: #777; font-size: .78rem; margin-bottom: 14px; }
+  .legend .sq { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; }
+</style>
+
+<div class="edit-page">
+  <div class="edit-head">
+    <h1>🔧 CUSTOMIZE — {{ car.full_name }}</h1>
+    <p>Select an engine, material and color, then calculate the new performance.</p>
+  </div>
+
+  <div class="edit-tabs">
+    <button type="button" class="etab active" data-p="p-engine">⚙️ Engine</button>
+    <button type="button" class="etab" data-p="p-material">🧱 Material</button>
+    <button type="button" class="etab" data-p="p-color">🎨 Color</button>
+  </div>
+
+  <div class="epanel active" id="p-engine">
+    <input type="text" class="pick-search" id="eng-search" placeholder="🔍 Search engines...">
+    <div id="engine-accordion"></div>
+  </div>
+
+  <div class="epanel" id="p-material">
+    <div class="pick-grid" id="material-grid"></div>
+  </div>
+
+  <div class="epanel" id="p-color">
+    <input type="text" class="pick-search" id="col-search" placeholder="🔍 Search colors...">
+    <div class="pick-grid" id="color-grid"></div>
+  </div>
+
+  <div class="action-bar">
+    <button type="button" class="btn-primary" id="btn-calc">📊 CALCULATE PERFORMANCE</button>
+    <button type="button" class="btn-primary" id="btn-save">💾 SAVE</button>
+    <a href="/car/{{ car.id }}" class="btn-secondary">← Back to Car</a>
+    <div class="sel-summary" id="sel-summary">Nothing selected yet.</div>
+  </div>
+
+  <div class="report" id="report">
+    <h2>📊 PERFORMANCE REPORT</h2>
+    <div class="legend">
+      <span class="sq" style="background:#555"></span>Stock &nbsp;&nbsp;
+      <span class="sq" style="background:#c5c9c7"></span>Modified
+    </div>
+    <div id="report-rows"></div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+<script>
+(function () {
+  "use strict";
+  var CAR_ID = {{ car.id }};
+  var sel = { engine_id: null, material_id: null, color_id: null };
+  var engineTypes = [], materials = [], colors = [];
+
+  function $(id) { return document.getElementById(id); }
+  function toast(m) { var t = $("toast"); t.textContent = m; t.className = "toast show";
+    setTimeout(function(){ t.className = "toast"; }, 2500); }
+
+  document.querySelectorAll(".etab").forEach(function (b) {
+    b.addEventListener("click", function () {
+      document.querySelectorAll(".etab").forEach(function(x){ x.classList.toggle("active", x===b); });
+      document.querySelectorAll(".epanel").forEach(function(p){ p.classList.toggle("active", p.id===b.dataset.p); });
+    });
+  });
+
+  fetch("/api/engine-types").then(function(r){return r.json();}).then(function(d){ engineTypes=d; renderEngineTypes(d); restore(); });
+  fetch("/api/materials").then(function(r){return r.json();}).then(function(d){ materials=d; renderMaterials(d); restore(); });
+  fetch("/api/colors").then(function(r){return r.json();}).then(function(d){ colors=d; renderColors(d); restore(); });
+
+  function findVariant(id) {
+    for (var i = 0; i < engineTypes.length; i++) {
+      var v = (engineTypes[i].variants || []).find(function(x){ return x.id === id; });
+      if (v) return v;
+    }
+    return null;
+  }
+
+  function renderEngineTypes(types, filterText) {
+    var q = (filterText || "").toLowerCase();
+    var html = types.map(function (t) {
+      var variants = t.variants || [];
+      if (q) {
+        variants = variants.filter(function (v) {
+          return (t.name + " " + v.name).toLowerCase().indexOf(q) !== -1;
+        });
+        if (!variants.length) return "";
+      }
+      var isOpen = sel.engine_id && variants.some(function(v){ return v.id === sel.engine_id; });
+      return '<div class="etype-section' + (isOpen ? ' open' : '') + '">' +
+        '<div class="etype-head"><div class="etype-head-left">' +
+        (t.image_url ? '<img class="etype-icon" src="' + t.image_url + '" alt="">' : '') +
+        '<h4>' + t.name + '</h4></div><span class="etype-arrow">' +
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 15 12 9 18 15"></polyline></svg>' +
+        '</span></div>' +
+        '<div class="etype-variants">' +
+        variants.map(function (v) {
+          return '<div class="pick-card variant-card" data-t="engine_id" data-id="' + v.id + '">' +
+            (v.image_url ? '<img src="' + v.image_url + '" alt="">' : '') +
+            '<div><h4>' + v.name + '</h4>' +
+            '<small>Horsepower: ' + v.power_hp + ' hp · Torque: ' + v.torque_nm + ' Nm</small></div>' +
+            '</div>';
+        }).join("") +
+        '</div></div>';
+    }).join("");
+    $("engine-accordion").innerHTML = html;
+    markSelected();
+  }
+
+  $("engine-accordion").addEventListener("click", function (e) {
+    var head = e.target.closest(".etype-head");
+    if (!head) return;
+    head.closest(".etype-section").classList.toggle("open");
+  });
+  function renderMaterials(list) {
+    $("material-grid").innerHTML = list.map(function(m){
+      return '<div class="pick-card" data-t="material_id" data-id="'+m.id+'"><h4>'+m.name+'</h4>' +
+        '<small>Weight: '+m.weight_factor+'× · Strength: '+m.strength_factor+'×<br>'+(m.description||'')+'</small></div>';
+    }).join("");
+  }
+  function renderColors(list) {
+    $("color-grid").innerHTML = list.map(function(c){
+      return '<div class="pick-card color-card" data-t="color_id" data-id="'+c.id+'">' +
+        '<span class="color-dot" style="background:'+c.hex_code+'"></span>' +
+        '<div><h4>'+c.name+'</h4><small>'+c.hex_code+'</small></div></div>';
+    }).join("");
+  }
+
+  document.querySelector(".edit-page").addEventListener("click", function (e) {
+    var card = e.target.closest(".pick-card");
+    if (!card) return;
+    var t = card.dataset.t;
+    sel[t] = parseInt(card.dataset.id);
+    document.querySelectorAll('.pick-card[data-t="'+t+'"]').forEach(function(x){
+      x.classList.toggle("selected", x === card);
+    });
+    summary();
+    toast("✅ " + card.querySelector("h4").textContent + " CONFIRMED!");
+  });
+
+  function summary() {
+    var e = findVariant(sel.engine_id);
+    var m = materials.find(function(x){return x.id===sel.material_id;});
+    var c = colors.find(function(x){return x.id===sel.color_id;});
+    $("sel-summary").innerHTML = "Engine: <b>" + (e?e.name:"stock") + "</b> · Material: <b>" +
+      (m?m.name:"stock") + "</b> · Color: <b>" + (c?c.name:"stock") + "</b>";
+  }
+
+  $("eng-search").addEventListener("input", function(){
+    renderEngineTypes(engineTypes, this.value);
+  });
+  $("col-search").addEventListener("input", function(){
+    var q=this.value.toLowerCase();
+    renderColors(colors.filter(function(c){return c.name.toLowerCase().indexOf(q)!==-1;}));
+    markSelected();
+  });
+  function markSelected(){
+    document.querySelectorAll(".pick-card").forEach(function(x){
+      x.classList.toggle("selected", sel[x.dataset.t]===parseInt(x.dataset.id));
+    });
+  }
+
+  // SAVE — survives refresh (localStorage)
+  $("btn-save").addEventListener("click", function () {
+    localStorage.setItem("build_" + CAR_ID, JSON.stringify(sel));
+    toast("💾 Build saved!");
+  });
+
+  function restore() {
+    var saved = localStorage.getItem("build_" + CAR_ID);
+    if (!saved) return;
+    try { var s = JSON.parse(saved);
+      sel.engine_id=s.engine_id; sel.material_id=s.material_id; sel.color_id=s.color_id;
+      if (engineTypes.length) renderEngineTypes(engineTypes, $("eng-search").value);
+      markSelected(); summary();
+    } catch(e){}
+  }
+
+  // ⭐ CALCULATE — this send data to calculator.py
+  $("btn-calc").addEventListener("click", function () {
+    fetch("/api/calculate", {
+      method: "POST", headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({ car_id: CAR_ID, engine_id: sel.engine_id, material_id: sel.material_id })
+    })
+    .then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); })
+    .then(function(d){ showReport(d); })
+    .catch(function(){ toast("❌ Calculation failed!"); });
+  });
+
+  // NEW naming: torque / top_speed / weight (matches new calculator.py)
+  function showReport(d) {
+    var b = d.baseline;
+    var rows = [
+      ["Horsepower", b.horsepower, d.horsepower, " hp"],
+      ["Torque", b.torque, d.torque, " Nm"],
+      ["Top Speed", b.top_speed, d.top_speed, " km/h"],
+      ["0–100 km/h", b.accel_0_100, d.accel_0_100, " s"],
+      ["Quarter Mile", b.quarter_mile, d.quarter_mile, " s"],
+      ["Weight", b.weight, d.weight, " kg"],
+      ["Power / Tonne", b.power_to_weight, d.power_to_weight, " hp/t"]
+    ];
+    var html = "";
+    rows.forEach(function (r) {
+      var max = Math.max(r[1]||0, r[2]||0, 1);
+      html += '<div class="r-row"><div class="r-lbl"><span>'+r[0]+'</span>' +
+        '<b>'+r[1]+r[3]+' → '+r[2]+r[3]+'</b></div>' +
+        '<div class="bar-bg"><div class="bar old" style="width:'+((r[1]||0)/max*100)+'%"></div></div>' +
+        '<div class="bar-bg"><div class="bar new" style="width:'+((r[2]||0)/max*100)+'%"></div></div></div>';
+    });
+    $("report-rows").innerHTML = html;
+    $("report").classList.add("show");
+    $("report").scrollIntoView({ behavior: "smooth" });
+  }
+})();
+</script>
+
+{% endblock %}
