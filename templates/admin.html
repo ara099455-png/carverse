@@ -1,0 +1,243 @@
+{% extends "base.html" %}
+{% block title %}Admin Panel — CarVerse{% endblock %}
+{% block content %}
+
+<div class="admin-container">
+
+  <!-- ==================== HEADER ==================== -->
+  <div class="admin-header">
+    <h1>⚙️ ADMIN <span class="silver-text">PANEL</span></h1>
+    <div class="admin-key-box">
+      <input type="password" id="admin-key" placeholder="Admin Key">
+      <button type="button" class="btn-secondary" id="save-key">🔑 Set Key</button>
+    </div>
+  </div>
+
+  <!-- ==================== TABS ==================== -->
+  <div class="admin-tabs">
+    <button type="button" class="tab-btn active" data-tab="cars-tab">🚗 Cars</button>
+    <button type="button" class="tab-btn" data-tab="engines-tab">🔧 Engines</button>
+    <button type="button" class="tab-btn" data-tab="materials-tab">🧱 Materials</button>
+    <button type="button" class="tab-btn" data-tab="colors-tab">🎨 Colors</button>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- TAB 1: CARS                                                  -->
+  <!-- ============================================================ -->
+  <div class="tab-content active" id="cars-tab">
+
+    <form id="car-form" class="admin-form">
+      <h2 id="form-title">Add New Car</h2>
+      <input type="hidden" id="car-id">
+
+      <fieldset>
+        <legend>🏷️ Identity</legend>
+        <div class="form-grid">
+          <input type="text" id="brand" placeholder="Brand *" required>
+          <input type="text" id="model" placeholder="Model *" required>
+          <input type="text" id="generation" placeholder="Generation (e.g. F90)">
+          <input type="text" id="nickname" placeholder="Nickname (e.g. Godzilla)">
+          <select id="category">
+            <option>Production</option><option>Legendary</option><option>Concept</option>
+            <option>Hypercar</option><option>Supercar</option><option>Sports</option>
+            <option>Electric</option><option>Luxury</option><option>Common</option>
+            <option>Classic</option><option>Racing</option>
+          </select>
+          <select id="status">
+            <option>Production</option><option>Discontinued</option>
+            <option>Concept</option><option>Prototype</option>
+          </select>
+          <input type="text" id="production_years" placeholder="Production Years (1993–2002)">
+          <input type="text" id="country" placeholder="Country">
+          <input type="text" id="manufacturer" placeholder="Manufacturer">
+          <input type="text" id="image_url" placeholder="Image URL (direct .jpg/.png link)">
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>⚡ Performance</legend>
+        <div class="form-grid">
+          <input type="text" id="horsepower" placeholder="Horsepower (hp)">
+          <input type="text" id="torque" placeholder="Torque (Nm)">
+          <input type="text" id="top_speed" placeholder="Top Speed (km/h)">
+          <input type="text" id="accel_0_100" placeholder="0–100 km/h (sec)">
+          <input type="text" id="quarter_mile" placeholder="Quarter Mile (sec)">
+          <input type="text" id="weight" placeholder="Weight (kg)">
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>📏 Dimensions</legend>
+        <div class="form-grid">
+          <input type="text" id="length" placeholder="Length (mm)">
+          <input type="text" id="width" placeholder="Width (mm)">
+          <input type="text" id="height" placeholder="Height (mm)">
+          <input type="text" id="wheelbase" placeholder="Wheelbase (mm)">
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>🔧 Engine</legend>
+        <div class="form-grid">
+          <input type="text" id="engine_name" placeholder="Engine Name (2JZ-GTE Twin-Turbo)">
+          <input type="text" id="engine_code" placeholder="Engine Code (S63B44T4)">
+          <input type="text" id="engine_layout" placeholder="Layout (V8, Inline 6...)">
+          <input type="text" id="displacement" placeholder="Displacement (L)">
+          <input type="text" id="cylinders" placeholder="Cylinders">
+          <select id="aspiration">
+            <option value="">— Aspiration —</option>
+            <option>Naturally Aspirated</option><option>Turbocharged</option>
+            <option>Twin-Turbocharged</option><option>Quad-Turbocharged</option>
+            <option>Supercharged</option><option>N/A</option>
+          </select>
+          <select id="fuel_type">
+            <option>Petrol</option><option>Diesel</option><option>Electric</option>
+            <option>Petrol Hybrid</option><option>Hydrogen</option>
+          </select>
+          <input type="text" id="redline" placeholder="Redline (RPM)">
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>⚙️ Transmission</legend>
+        <div class="form-grid">
+          <input type="text" id="transmission_type" placeholder="Transmission Type (7-speed DCT)">
+          <input type="text" id="gear_count" placeholder="Gear Count">
+          <select id="drivetrain">
+            <option>RWD</option><option>FWD</option><option>AWD</option><option>4WD</option>
+          </select>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>💰 Sales & Market</legend>
+        <div class="form-grid">
+          <input type="text" id="units_produced" placeholder="Units Produced (e.g. 85500+)">
+          <input type="text" id="units_sold" placeholder="Units Sold (e.g. 85500+)">
+          <input type="text" id="market_availability" placeholder="Market Availability">
+          <input type="text" id="msrp" placeholder="MSRP (USD)">
+          <input type="text" id="launch_date" placeholder="Launch Date (2013-03-05)">
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>📖 Additional Info</legend>
+        <div class="form-grid full">
+          <input type="text" id="competitors" placeholder="Competitors (comma separated)">
+          <input type="text" id="awards" placeholder="Awards">
+          <textarea id="historical_importance" placeholder="Historical Importance..." rows="3"></textarea>
+        </div>
+      </fieldset>
+
+      <div class="form-actions">
+        <button type="submit" class="btn-primary">💾 Save Car</button>
+        <button type="button" class="btn-secondary" id="clear-form">Clear</button>
+      </div>
+    </form>
+
+    <div class="admin-list-section">
+      <h2>📋 All Cars</h2>
+      <input type="text" id="admin-car-filter" class="admin-filter" placeholder="Filter cars...">
+      <div id="admin-cars-list" class="admin-list"></div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- TAB 2: ENGINES                                               -->
+  <!-- ============================================================ -->
+  <div class="tab-content" id="engines-tab">
+
+    <form id="variant-form" class="admin-form">
+      <h2>Add Engine Variant</h2>
+      <fieldset>
+        <legend>🔧 Variant Details</legend>
+        <div class="form-grid">
+          <select id="var-type-id" required>
+            <option value="">— Select Engine Type —</option>
+          </select>
+          <input type="text" id="var-name" placeholder="Variant Name * (e.g. 6.2L Turbocharged V8)" required>
+          <input type="text" id="var-power" placeholder="Power (hp)">
+          <input type="text" id="var-torque" placeholder="Torque (Nm)">
+          <input type="text" id="var-weight" placeholder="Weight (kg)">
+          <input type="text" id="var-image" placeholder="Variant Image URL">
+        </div>
+      </fieldset>
+      <button type="submit" class="btn-primary">💾 Save Variant</button>
+    </form>
+
+    <form id="engine-type-form" class="admin-form">
+      <h2>➕ Add Engine (Type)</h2>
+      <fieldset>
+        <legend>🏷️ New Engine Type</legend>
+        <div class="form-grid">
+          <input type="text" id="etype-name" placeholder="Type Name * (e.g. V8, Inline 6, W16)" required>
+          <input type="text" id="etype-image" placeholder="Type Image URL (optional)">
+        </div>
+      </fieldset>
+      <button type="submit" class="btn-primary">💾 Save Engine Type</button>
+    </form>
+
+    <div class="admin-list-section">
+      <h2>📋 All Engines</h2>
+      <div id="admin-engines-list"></div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- TAB 3: MATERIALS                                             -->
+  <!-- ============================================================ -->
+  <div class="tab-content" id="materials-tab">
+    <form id="material-form" class="admin-form">
+      <h2>Add Material</h2>
+      <fieldset>
+        <legend>🧱 Material Details</legend>
+        <div class="form-grid">
+          <input type="text" id="mat-name" placeholder="Material Name *" required>
+          <input type="text" id="mat-weight" placeholder="Weight Factor (Steel = 1.0)">
+          <input type="text" id="mat-strength" placeholder="Strength Factor (Steel = 1.0)">
+          <input type="text" id="mat-image" placeholder="Image URL">
+        </div>
+        <div class="form-grid full">
+          <textarea id="mat-desc" placeholder="Description..." rows="2"></textarea>
+        </div>
+      </fieldset>
+      <button type="submit" class="btn-primary">💾 Save Material</button>
+    </form>
+    <div class="admin-list-section">
+      <h2>📋 All Materials</h2>
+      <div id="admin-materials-list" class="admin-list"></div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- TAB 4: COLORS                                                -->
+  <!-- ============================================================ -->
+  <div class="tab-content" id="colors-tab">
+    <form id="color-form" class="admin-form">
+      <h2>Add Color</h2>
+      <fieldset>
+        <legend>🎨 Color Details</legend>
+        <div class="form-grid">
+          <input type="text" id="col-name" placeholder="Color Name * (e.g. Rosso Corsa)" required>
+          <input type="color" id="col-picker" value="#D40000" title="Pick color">
+          <input type="text" id="col-hex" placeholder="Hex Code (#D40000)">
+        </div>
+      </fieldset>
+      <button type="submit" class="btn-primary">💾 Save Color</button>
+    </form>
+    <div class="admin-list-section">
+      <h2>📋 All Colors</h2>
+      <div id="admin-colors-list" class="admin-list color-grid"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Toast notification -->
+<div id="toast" class="toast"></div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+{% endblock %}
