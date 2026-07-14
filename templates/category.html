@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}{{ name }} Cars — CarVerse{% endblock %}
+{% block content %}
+
+<section class="section" style="padding-top: 110px;">
+  <h2 class="section-title">{{ name|upper }} <span>CARS</span></h2>
+
+  {% if cars %}
+  <div class="car-grid">
+    {% for car in cars %}
+    <a href="/car/{{ car.id }}" class="car-card">
+      <img src="{{ car.image_url }}" referrerpolicy="no-referrer"
+           onerror="this.onerror=null;this.src='https://placehold.co/600x380/141414/c5c9c7?text=CarVerse'"
+           alt="{{ car.full_name }}">
+      <div class="car-card-body">
+        <h3>{{ car.full_name }}</h3>
+        <div class="meta">
+          <span><b>{{ car.horsepower }}</b> hp</span>
+          <span><b>{{ car.top_speed }}</b> km/h</span>
+          <span>{{ car.status }}</span>
+        </div>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p style="text-align:center; color:#888; padding: 40px;">
+    No cars in this category yet. Add some from the <a href="/admin" style="color:#c5c9c7;">Admin Panel</a>.
+  </p>
+  {% endif %}
+</section>
+
+{% endblock %}
