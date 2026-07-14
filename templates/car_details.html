@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block title %}{{ car.full_name }} — CarVerse{% endblock %}
+{% block content %}
+
+<section class="detail-hero" style="background-image:url('{{ car.image_url }}')">
+  <div class="hero-overlay"></div>
+  <div class="detail-hero-content fade-in">
+    <span class="badge">{{ car.category }} · {{ car.status }}</span>
+    <h1>{{ car.full_name }}</h1>
+    {% if car.nickname %}<p class="nickname">"{{ car.nickname }}"</p>{% endif %}
+    <a href="/edit/{{ car.id }}" class="btn-primary">✎ EDIT & CUSTOMIZE</a>
+  </div>
+</section>
+
+<section class="section detail-grid">
+
+  <div class="spec-card">
+    <h3>📋 Basic Information</h3>
+    <table class="spec-table">
+      <tr><td>Brand</td><td>{{ car.brand or "—" }}</td></tr>
+      <tr><td>Model</td><td>{{ car.model or "—" }}</td></tr>
+      <tr><td>Generation</td><td>{{ car.generation or "—" }}</td></tr>
+      <tr><td>Production Years</td><td>{{ car.production_years or "—" }}</td></tr>
+      <tr><td>Status</td><td>{{ car.status or "—" }}</td></tr>
+      <tr><td>Country</td><td>{{ car.country or "—" }}</td></tr>
+      <tr><td>Manufacturer</td><td>{{ car.manufacturer or "—" }}</td></tr>
+    </table>
+  </div>
+
+  <div class="spec-card">
+    <h3>🏁 Performance</h3>
+    <table class="spec-table">
+      <tr><td>Horsepower</td><td>{{ car.horsepower or "—" }} hp</td></tr>
+      <tr><td>Torque</td><td>{{ car.torque or "—" }} Nm</td></tr>
+      <tr><td>Top Speed</td><td>{{ car.top_speed or "—" }} km/h</td></tr>
+      <tr><td>0–100 km/h</td><td>{{ car.accel_0_100 or "—" }} s</td></tr>
+      <tr><td>Quarter Mile</td><td>{{ car.quarter_mile or "—" }} s</td></tr>
+      <tr><td>Weight</td><td>{{ car.weight or "—" }} kg</td></tr>
+      <tr><td>Power-to-Weight</td><td>{{ car.power_to_weight or "—" }} hp/ton</td></tr>
+    </table>
+  </div>
+
+  <div class="spec-card">
+    <h3>📐 Dimensions</h3>
+    <table class="spec-table">
+      <tr><td>Length</td><td>{{ car.length or "—" }} mm</td></tr>
+      <tr><td>Width</td><td>{{ car.width or "—" }} mm</td></tr>
+      <tr><td>Height</td><td>{{ car.height or "—" }} mm</td></tr>
+      <tr><td>Wheelbase</td><td>{{ car.wheelbase or "—" }} mm</td></tr>
+    </table>
+  </div>
+
+  <div class="spec-card">
+    <h3>⚙️ Engine</h3>
+    <table class="spec-table">
+      <tr><td>Engine Name</td><td>{{ car.engine_name or "—" }}</td></tr>
+      <tr><td>Engine Code</td><td>{{ car.engine_code or "—" }}</td></tr>
+      <tr><td>Layout</td><td>{{ car.engine_layout or "—" }}</td></tr>
+      <tr><td>Displacement</td><td>{{ car.displacement or "—" }} L</td></tr>
+      <tr><td>Cylinders</td><td>{{ car.cylinders or "—" }}</td></tr>
+      <tr><td>Aspiration</td><td>{{ car.aspiration or "—" }}</td></tr>
+      <tr><td>Fuel Type</td><td>{{ car.fuel_type or "—" }}</td></tr>
+      <tr><td>Redline</td><td>{{ car.redline or "—" }} rpm</td></tr>
+    </table>
+  </div>
+
+  <div class="spec-card">
+    <h3>🔧 Transmission</h3>
+    <table class="spec-table">
+      <tr><td>Type</td><td>{{ car.transmission_type or "—" }}</td></tr>
+      <tr><td>Gears</td><td>{{ car.gear_count or "—" }}</td></tr>
+      <tr><td>Drivetrain</td><td>{{ car.drivetrain or "—" }}</td></tr>
+    </table>
+  </div>
+
+  <div class="spec-card">
+    <h3>📊 Sales & Market</h3>
+    <table class="spec-table">
+      <tr><td>Units Produced</td><td>{{ car.units_produced or "—" }}</td></tr>
+      <tr><td>Units Sold</td><td>{{ car.units_sold or "—" }}</td></tr>
+      <tr><td>Availability</td><td>{{ car.market_availability or "—" }}</td></tr>
+      <tr><td>MSRP</td><td>{{ car.msrp or "—" }}</td></tr>
+      <tr><td>Launch Date</td><td>{{ car.launch_date or "—" }}</td></tr>
+    </table>
+  </div>
+
+  <div class="spec-card wide">
+    <h3>🏆 History & Legacy</h3>
+    <p><strong>Competitors:</strong> {{ car.competitors or "—" }}</p>
+    <p><strong>Awards:</strong> {{ car.awards or "—" }}</p>
+    <p><strong>Historical Importance:</strong> {{ car.historical_importance or "—" }}</p>
+  </div>
+
+  <div class="spec-card wide">
+    <h3>🖼 Media Gallery</h3>
+    <div class="gallery">
+      <img src="{{ car.image_url }}" referrerpolicy="no-referrer" alt="{{ car.full_name }}" loading="lazy">
+      {% if car.gallery %}
+      {% for img in car.gallery.split(',') if img.strip() and img.strip() != car.image_url %}
+      <img src="{{ img.strip() }}" referrerpolicy="no-referrer" alt="gallery" loading="lazy">
+      {% endfor %}
+      {% endif %}
+    </div>
+    {% if car.video_url %}
+    <div class="video-wrap"><iframe src="{{ car.video_url }}" allowfullscreen></iframe></div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}
