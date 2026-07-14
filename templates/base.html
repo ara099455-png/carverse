@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}CarVerse{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <nav class="navbar">
+    <a href="/" class="logo">CAR<span>VERSE</span></a>
+    <div class="nav-search">
+      <input type="text" id="nav-search-input" placeholder="Search brand, model, generation, nickname..." autocomplete="off">
+      <div id="nav-search-results" class="search-results"></div>
+    </div>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/category/Hypercar">Hypercars</a>
+      <a href="/category/Electric">Electric</a>
+      <a href="/category/Classic">Classics</a>
+      <a href="/admin" class="btn-admin">Admin</a>
+    </div>
+    <button class="hamburger" id="hamburger">☰</button>
+  </nav>
+
+  <main>{% block content %}{% endblock %}</main>
+
+  <footer class="footer">
+    <div class="footer-grid">
+      <div>
+        <h3 class="logo">CAR<span>VERSE</span></h3>
+        <p>The complete encyclopedia of automotive history — from legends to concepts.</p>
+      </div>
+      <div>
+        <h4>Categories</h4>
+        <a href="/category/Legendary">Legendary</a>
+        <a href="/category/Supercar">Supercars</a>
+        <a href="/category/Luxury">Luxury</a>
+        <a href="/category/Racing">Racing</a>
+      </div>
+      <div>
+        <h4>Explore</h4>
+        <a href="/">Home</a>
+        <a href="/admin">Admin Panel</a>
+      </div>
+    </div>
+    <p class="footer-bottom">© 2026 CarVerse. Built for automotive enthusiasts.</p>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/search.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>
